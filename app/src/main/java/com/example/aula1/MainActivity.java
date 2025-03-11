@@ -18,6 +18,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText telefone;
 
     private AlunoDAO dao;
+
+    private Aluno aluno = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,32 +30,68 @@ public class MainActivity extends AppCompatActivity {
         cpf = findViewById(R.id.editTextText2);
         telefone = findViewById(R.id.editTextText3);
 
-        dao =new AlunoDAO(this);
+        dao = new AlunoDAO(this);
+
+        Intent it = getIntent(); //pega intenção
+        if(it.hasExtra("aluno")){
+            aluno = (Aluno) it.getSerializableExtra("aluno");
+            nome.setText(aluno.getNome().toString());
+            cpf.setText(aluno.getCPF());
+            telefone.setText(aluno.getTelefone());
+        }
     }
 
     public void salvar(View view){
-        Aluno a = new Aluno(
-                nome.getText().toString(),
-                cpf.getText().toString(),
-                telefone.getText().toString()
-            );
-
-        if (a.getNome().isEmpty() || a.getCPF().isEmpty() || a.getTelefone().isEmpty()){
-            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+        String nomeDigitado = nome.getText().toString().trim();
+        String cpfDigitado = cpf.getText().toString().trim();
+        String telefoneDigitado = telefone.getText().toString().trim();
+        // Verifica se os campos estão vazios
+        if (nomeDigitado.isEmpty() || cpfDigitado.isEmpty() || telefoneDigitado.isEmpty()) {
+            Toast.makeText(this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show();
             return;
+        }
+        // Validação do CPF (verifica se o formato e os dígitos são válidos)
+        System.out.println("CPF antes da validação: " + cpfDigitado);
+        if (!dao.isCPF(cpfDigitado)) {
+            Toast.makeText(this, "CPF inválido. Digite novamente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Se for cadastrar novo aluno ou Se for atualizar os dados ignora o CPF se for igual do próprio aluno
+        //Se o aluno atualizar um cpf diferente dai sim será verificado
+        if(aluno == null || !cpfDigitado.equals(aluno.getCPF())){
+            // verifica se o CPF já existe no banco
+            if (dao.cpfDuplicado(cpfDigitado)) {
+                Toast.makeText(this, "CPF duplicado. Insira um CPF diferente.", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
-        if(!dao.isCPF(a.getCPF())){
-            Toast.makeText(this, "CPF Invalido", Toast.LENGTH_SHORT).show();
-            return;
+        if (aluno == null) {
+            // Criar objeto Aluno
+            Aluno aluno = new Aluno();
+            aluno.setNome(nomeDigitado);
+            aluno.setCPF(cpfDigitado);
+            aluno.setTelefone(telefoneDigitado);
+            // Inserir aluno no banco de dados
+            long id = dao.inserir(aluno);
+            if (id != -1) {
+                Toast.makeText(this, "Aluno inserido com id: " + id, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Erro ao inserir aluno. Tente novamente.", Toast.LENGTH_SHORT).show();
+            }
         }
-        if (dao.cpfDuplicado(a.getCPF())){
-            Toast.makeText(this, "CPF ja cadastrado", Toast.LENGTH_SHORT).show();
-            return;
+        else{
+            // Atualização de um aluno existente
+            aluno.setNome(nomeDigitado);
+            aluno.setCPF(cpfDigitado);
+            aluno.setTelefone(telefoneDigitado);
+            dao.atualizar(aluno);
+            Toast.makeText(this, "Aluno atualizado com sucesso!", Toast.LENGTH_SHORT).show();
         }
-        long id = dao.inserir(a);
-        Toast.makeText(this, "Aluno inserido com id: "+ id, Toast.LENGTH_SHORT).show();
+        // Fecha a tela de cadastro e volta para a listagem
+        finish();
     }
+
 
     public void irParaListar(View view){
         Intent intent = new Intent(this, ListarAlunos.class);

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class AlunoDAO {
     private Conexao conexao;
-    private SQLiteDatabase banco;
+    private static SQLiteDatabase banco;
 
     public AlunoDAO(Context context){
         conexao = new Conexao(context);
@@ -105,4 +105,23 @@ public class AlunoDAO {
         }
         return false;
     }
+
+
+    public void excluir(Aluno a){
+        banco.delete("aluno", "id = ?",new String[]{String.valueOf(a.getId())}); // no lugar do ? vai colocar o id do aluno
+    }
+
+
+
+    public void atualizar(Aluno aluno){
+        ContentValues values = new ContentValues(); //valores que irei inserir
+        values.put("nome", aluno.getNome());
+        values.put("cpf", aluno.getCPF());
+        values.put("telefone", aluno.getTelefone());
+        banco.update("aluno", values, "id = ?", new String[]{String.valueOf(aluno.getId())});
+    }
+
+
+
+
 }
