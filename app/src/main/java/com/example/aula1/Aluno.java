@@ -54,4 +54,13 @@ public class Aluno implements Serializable {
     public String toString(){
         return this.nome;
     }
+
+    public byte[] getFotoBytes() {
+        return fotoBytes;
+    }
+
+    private byte[] fotoBytes;
+
+
+    public void setFotoBytes(byte[] fotoBytes) { this.fotoBytes = fotoBytes; }
 }
