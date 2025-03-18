@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         cameraLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -58,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
                         imageView = findViewById(R.id.imageView);
         Button btnTakePhoto = findViewById(R.id.btnTakePhoto);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
 
         nome = findViewById(R.id.editTextText);
         cpf = findViewById(R.id.editTextText2);
