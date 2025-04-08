@@ -26,7 +26,7 @@ import java.util.List;
 public class ListarAlunos extends AppCompatActivity {
     private ListView listView;
     private SearchView searchView;
-    private AlunoDAO alunoDAO;
+    private AlunoDao alunoDAO;
     private List<Aluno> alunos;
     private List<Aluno> alunosFiltrados = new ArrayList<>();
     private ArrayAdapter<String> adaptador;
@@ -39,7 +39,7 @@ public class ListarAlunos extends AppCompatActivity {
 
         listView = findViewById(R.id.lista_alunos);
         searchView = findViewById(R.id.searchView);
-        alunoDAO = new AlunoDAO(this);
+        this.alunoDAO = AppDatabase.getInstance(this).alunoDao();
         alunos = alunoDAO.obterTodos();
         alunosFiltrados.addAll(alunos);
 

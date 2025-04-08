@@ -1,12 +1,27 @@
 package com.example.aula1;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+@Entity(tableName = "aluno")
 public class Aluno implements Serializable {
-    int id;
+    @PrimaryKey(autoGenerate = true)
+    private Long id;
+
+    @ColumnInfo(name = "nome")
     String nome;
+
+    @ColumnInfo(name = "cpf")
     String CPF;
+
+    @ColumnInfo(name = "telefone")
     String telefone;
+
+    @ColumnInfo(name = "foto")
+    private byte[] fotoBytes;
 
     public Aluno(String nome, String CPF, String telefone) {
         this.nome = nome;
@@ -18,11 +33,11 @@ public class Aluno implements Serializable {
 
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -59,7 +74,7 @@ public class Aluno implements Serializable {
         return fotoBytes;
     }
 
-    private byte[] fotoBytes;
+
 
 
     public void setFotoBytes(byte[] fotoBytes) { this.fotoBytes = fotoBytes; }

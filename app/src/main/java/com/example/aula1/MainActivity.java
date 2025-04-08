@@ -35,14 +35,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText cpf;
     private EditText telefone;
 
-    private AlunoDAO dao;
+    private AlunoValidator validator;
 
     private Aluno aluno = null;
     private ImageView imageView;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private ActivityResultLauncher<Intent> cameraLauncher;
     private TextView txtEndereco;
+
+    private AlunoDao alunoDao;
     private static final int REQUEST_ENDERECO = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +63,15 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setImageBitmap(imagemCorrigida);
                     }
                 }
+
         );
+        AppDatabase db = AppDatabase.getInstance(this);
+        this.alunoDao = db.alunoDao();
+        this.validator = new AlunoValidator(alunoDao);
 
 
-                        imageView = findViewById(R.id.imageView);
+
+        imageView = findViewById(R.id.imageView);
         Button btnTakePhoto = findViewById(R.id.btnTakePhoto);
 
 
@@ -71,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
         cpf = findViewById(R.id.editTextText2);
         telefone = findViewById(R.id.editTextText3);
 
-        dao = new AlunoDAO(this);
 
         txtEndereco = findViewById(R.id.txtEndereco);
 
@@ -98,16 +105,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         System.out.println("CPF antes da validação: " + cpfDigitado);
-        if (!dao.isCPF(cpfDigitado)) {
+        if (!validator.isCPF(cpfDigitado)) {
             Toast.makeText(this, "CPF inválido. Digite novamente.", Toast.LENGTH_SHORT).show();
             return;
         }
         if(aluno == null || !cpfDigitado.equals(aluno.getCPF())){
-            if (dao.cpfDuplicado(cpfDigitado)) {
+            if (validator.cpfDuplicado(cpfDigitado)) {
                 Toast.makeText(this, "CPF duplicado. Insira um CPF diferente.", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
+        System.out.println("cu1: " + cpfDigitado);
+
 
         if (aluno == null) {
             Aluno aluno = new Aluno();
@@ -123,8 +132,13 @@ public class MainActivity extends AppCompatActivity {
                 byte[] fotoBytes = stream.toByteArray();
                 aluno.setFotoBytes(fotoBytes);
             }
+            System.out.println("cu2: " + cpfDigitado);
 
-            long id = dao.inserir(aluno);
+            System.out.println(aluno.nome);
+            long id = alunoDao.inserir(aluno);
+
+            System.out.println("cu3: " + cpfDigitado);
+
 
             if (id != -1) {
                 Toast.makeText(this, "Aluno inserido com id: " + id, Toast.LENGTH_SHORT).show();
@@ -145,10 +159,13 @@ public class MainActivity extends AppCompatActivity {
                 byte[] fotoBytes = stream.toByteArray();
                 aluno.setFotoBytes(fotoBytes);
             }
-            dao.atualizar(aluno);
+
+            alunoDao.atualizar(aluno);
             Toast.makeText(this, "Aluno atualizado com sucesso!", Toast.LENGTH_SHORT).show();
         }
+
         finish();
+
     }
 
 

@@ -1,44 +1,16 @@
 package com.example.aula1;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-
-import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 
-public class AlunoDAO {
-    private Conexao conexao;
-    private static SQLiteDatabase banco;
 
-    public AlunoDAO(Context context){
-        conexao = new Conexao(context);
-        banco = conexao.getWritableDatabase();
-    }
 
-    public long inserir(Aluno aluno){
-        ContentValues values = new ContentValues();
-        values.put("nome", aluno.getNome());
-        values.put("cpf", aluno.getCPF());
-        values.put("telefone", aluno.getTelefone());
-        values.put("fotoBytes", aluno.getFotoBytes());
-        return banco.insert("aluno", null, values);
-    }
-    public List<Aluno> obterTodos(){
-        List<Aluno> alunos = new ArrayList<>();
-        Cursor cursor = banco.query("aluno", new String[]{"id", "nome", "cpf", "telefone", "fotoBytes"},
-                null, null, null, null, null);
-        while(cursor.moveToNext()){
-            Aluno a = new Aluno();
-            a.setId(cursor.getInt(0));
-            a.setNome(cursor.getString(1));
-            a.setCPF(cursor.getString(2));
-            a.setTelefone(cursor.getString(3));
-            alunos.add(a);
-        }
-        return alunos;
+public class AlunoValidator {
+
+    private AlunoDao dao;
+
+    public AlunoValidator(AlunoDao dao) {
+        this.dao = dao;
     }
 
     public boolean isCPF(String cpf) {
@@ -95,7 +67,7 @@ public class AlunoDAO {
     }
 
     public boolean cpfDuplicado(String cpf){
-        List<Aluno> alunos = this.obterTodos();
+        List<Aluno> alunos = this.dao.obterTodos();
         for (Aluno aluno : alunos){
             System.out.println(aluno.getCPF() +" " + cpf);
             if (aluno.getCPF() == cpf){
@@ -106,24 +78,4 @@ public class AlunoDAO {
         }
         return false;
     }
-
-
-    public void excluir(Aluno a){
-        banco.delete("aluno", "id = ?",new String[]{String.valueOf(a.getId())}); // no lugar do ? vai colocar o id do aluno
-    }
-
-
-
-    public void atualizar(Aluno aluno){
-        ContentValues values = new ContentValues(); //valores que irei inserir
-        values.put("nome", aluno.getNome());
-        values.put("cpf", aluno.getCPF());
-        values.put("telefone", aluno.getTelefone());
-        values.put("fotoBytes", aluno.getFotoBytes());
-        banco.update("aluno", values, "id = ?", new String[]{String.valueOf(aluno.getId())});
-    }
-
-
-
-
 }
